@@ -72,4 +72,31 @@ An advantage of this approach is that it is very straightforward to compute. Dis
 
 ### Model Expected Performance Based on Current Rating
 
-An alternative approach would be to model a player's expected performance in the event as a function of that player's current rating.
+An alternative approach would be to model a player's expected performance in the event as a function of that player's current rating. We make the simplifying assumption that the distribution of round ratings $R_i$ for player $i$ is normally distributed around $\mu_i$ with variance $\sigma_i$. Then, the expectation of the number of points $X$ for player $i$ is given by
+
+$$X_i = f(R_i) +\epsilon$$
+$$E[X_i] = f(E[R_i])$$
+$$R_i \sim N(\mu_i,\sigma_i )$$
+
+We could additionally condition on other factors, like player $i$'s age. We could also construct a different weighting for more recent rounds - since the PDGA rating system already adds higher weight to more recent rounds, we'll skip over that for now.
+
+$$X_i = f(R_i \sim N(\mu_i, \sigma_i |Y_i))$$
+
+ What we are looking to capture here is our prior belief that younger touring pros who may be on the "upswing" of their careers may outplay their current rating more often than older players. Since we don't have direct access to players' ages, we can use their number of years as PDGA members as a rough proxy
+
+ ## Data Gathering
+
+ List of 93 MPO DGPT tour card holders for 2024 and their pdga numbers on [discgolfscene.com](https://www.discgolfscene.com/tournaments/2024_DGPT_Tour_Card_and_Tour_Pass_Registration_2023/registration).
+
+ PDGA Ratings and rating history from [www.pdga.com](https://www.discgolfscene.com/tournaments/2024_DGPT_Tour_Card_and_Tour_Pass_Registration_2023/registration) (scraped)
+
+2023 Major (pro) and Elite Series PDGA Events from [pdga](https://www.pdga.com/tour/search?date_filter[min][date]=2023-01-01&date_filter[max][date]=2023-12-31&Tier[]=ES&Tier[]=M&Tier[]=XM&Classification[]=Pro)
+
+```python
+#List of event urls
+pdga_event_string = 'https://www.pdga.com/tour/event/'
+
+events_list_23 = [65206, 66457, 65288, 65208, 64955, 66458, 65207, 69022, 65289, 67392, 68353, 64036, 67202, 65115, 66174, 65116, 68748, 65291, 64957, 74356]
+
+```
+
