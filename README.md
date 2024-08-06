@@ -8,12 +8,14 @@ The project has three overacrhing components.
 
 - Collect data about past results
     - Last 2 or 3 seasons of results from PDGA and/or UDisc Live
-    - Data on courses (type, length, elevation, etc)
-    - Weather data - past events and historical averages for events
+    - Player data - ratings and career history from PDGA
+
 - EDA, analysis of trends
 - Model expected fantasy DG performance for players
     - Determine if there is a compelling improvement on using average of past performance as predictor of 2024 performance
     - Inform draft strategy with derivation an auction preference order and value for each player
+
+This project is focused on a draft valuation model that focuses on overall season performance, rather than a player-event forecast, which may be attempted later.
 
 ## Outline of Fantasy Format
 
