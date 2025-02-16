@@ -1,0 +1,69 @@
+import pandas as pd
+from tqdm import tqdm
+import time
+from .scraping_utils import get_player_career_stats, scrape_player_stats
+from .feature_extraction import (
+    extract_numbers,
+    calculate_fantasy_points,
+    calculate_composite_scores
+)
+
+def generate_player_dataset(input_csv, stats_years, points_map):
+    """
+    Generate complete player dataset with stats and fantasy points.
+    
+    Args:
+        input_csv: Path to CSV containing PDGA player numbers
+        stats_years: List of years to scrape stats for
+        points_map: Dictionary mapping places to fantasy points
+        
+    Returns:
+        DataFrame with player stats and fantasy points
+    """
+    # Read player list
+    players_df = pd.read_csv(input_csv)
+    
+    # Get career stats
+    for index, row in tqdm(players_df.iterrows(), total=players_df.shape[0]):
+        stats = get_player_career_stats(player_pdga=row['pdga_number'])
+        for key, value in stats.items():
+            players_df.at[index, key] = value
+        time.sleep(1.5)
+        
+    # Clean numeric columns
+    numeric_cols = ['career_events', 'join_date', 'rating_current', 
+                   'career_wins', 'career_earnings', 'world_rank']
+    for col in numeric_cols:
+        raw_col = f'{col}_raw'
+        players_df[col] = players_df[raw_col].apply(extract_numbers)
+        players_df = players_df.drop(columns=[raw_col])
+        
+    # Get detailed stats and ratings
+    for index, row in tqdm(players_df.iterrows(), total=players_df.shape[0]):
+        stats, ratings = scrape_player_stats(
+            pdga_number=row['pdga_number'],
+            years_list=stats_years
+        )
+        players_df.at[index, 'stats_data'] = [stats.to_dict(orient='list')]
+        players_df.at[index, 'ratings_data'] = [ratings.to_dict(orient='list')]
+        time.sleep(1.5)
+        
+    # Calculate fantasy points
+    for year in stats_years:
+        col = f'fantasy_points_{str(year)[-2:]}'
+        players_df[col] = players_df['stats_data'].apply(
+            lambda x: calculate_fantasy_points(x, points_map, year)
+        )
+        
+    # Calculate composite scores
+    players_df = calculate_composite_scores(players_df)
+    
+    # Convert rating to float
+    players_df['rating_current'] = players_df['rating_current'].astype(float)
+    
+    # Drop intermediate columns
+    drop_cols = ['stats_data', 'ratings_data', 'career_earnings',
+                 'world_rank', 'pdga_number']
+    players_df = players_df.drop(columns=drop_cols)
+    
+    return players_df.sort_values('composite_fp', ascending=False)

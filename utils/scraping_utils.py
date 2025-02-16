@@ -3,6 +3,10 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import time
 
+def ratings_date_parse(s):
+    """Parse date from PDGA ratings format."""
+    return s.split('to')[-1].strip()
+
 def scrape_pdga_table(url, table_id, event=False):
     """
     Scrape a table from a PDGA webpage.
