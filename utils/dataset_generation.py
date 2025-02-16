@@ -1,6 +1,8 @@
 import pandas as pd
 from tqdm import tqdm
 import time
+import argparse
+import json
 from .scraping_utils import get_player_career_stats, scrape_player_stats
 from .feature_extraction import (
     extract_numbers,
@@ -95,3 +97,28 @@ def generate_player_dataset(input_csv, stats_years, points_map):
     """
     df = scrape_player_data(input_csv, stats_years)
     return calculate_features(df, points_map, stats_years)
+
+def main():
+    parser = argparse.ArgumentParser(description='Generate fantasy disc golf player dataset')
+    parser.add_argument('input_csv', help='Path to CSV containing PDGA player numbers')
+    parser.add_argument('output_csv', help='Path to save the output dataset')
+    parser.add_argument('--years', nargs='+', type=int, required=True,
+                      help='Years to scrape stats for (e.g. --years 2023 2024)')
+    parser.add_argument('--points-map', type=str, required=True,
+                      help='Path to JSON file containing place-to-points mapping')
+    
+    args = parser.parse_args()
+    
+    # Load points mapping from JSON
+    with open(args.points_map) as f:
+        points_map = json.load(f)
+    
+    # Generate dataset
+    df = generate_player_dataset(args.input_csv, args.years, points_map)
+    
+    # Save to CSV
+    df.to_csv(args.output_csv, index=False)
+    print(f"Dataset saved to {args.output_csv}")
+
+if __name__ == '__main__':
+    main()
