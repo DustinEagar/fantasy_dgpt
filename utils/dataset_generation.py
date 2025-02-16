@@ -96,6 +96,9 @@ def generate_player_dataset(input_csv, stats_years, points_map):
         DataFrame with player stats and fantasy points
     """
     df = scrape_player_data(input_csv, stats_years)
+    # Save intermediate scraped data
+    df.to_csv('data/scraped_temp.csv', index=False)
+    print("Intermediate scraped data saved to data/scraped_temp.csv")
     return calculate_features(df, points_map, stats_years)
 
 def main():
