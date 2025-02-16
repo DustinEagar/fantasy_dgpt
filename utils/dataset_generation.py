@@ -8,17 +8,16 @@ from .feature_extraction import (
     calculate_composite_scores
 )
 
-def generate_player_dataset(input_csv, stats_years, points_map):
+def scrape_player_data(input_csv, stats_years):
     """
-    Generate complete player dataset with stats and fantasy points.
+    Scrape player data from PDGA website.
     
     Args:
         input_csv: Path to CSV containing PDGA player numbers
         stats_years: List of years to scrape stats for
-        points_map: Dictionary mapping places to fantasy points
         
     Returns:
-        DataFrame with player stats and fantasy points
+        DataFrame with scraped player data
     """
     # Read player list
     players_df = pd.read_csv(input_csv)
@@ -48,22 +47,51 @@ def generate_player_dataset(input_csv, stats_years, points_map):
         players_df.at[index, 'ratings_data'] = [ratings.to_dict(orient='list')]
         time.sleep(1.5)
         
+    return players_df
+
+def calculate_features(df, points_map, stats_years):
+    """
+    Calculate fantasy features from scraped player data.
+    
+    Args:
+        df: DataFrame with scraped player data
+        points_map: Dictionary mapping places to point values
+        stats_years: List of years used in scraping
+        
+    Returns:
+        DataFrame with calculated features
+    """
     # Calculate fantasy points
     for year in stats_years:
         col = f'fantasy_points_{str(year)[-2:]}'
-        players_df[col] = players_df['stats_data'].apply(
+        df[col] = df['stats_data'].apply(
             lambda x: calculate_fantasy_points(x, points_map, year)
         )
         
     # Calculate composite scores
-    players_df = calculate_composite_scores(players_df)
+    df = calculate_composite_scores(df)
     
     # Convert rating to float
-    players_df['rating_current'] = players_df['rating_current'].astype(float)
+    df['rating_current'] = df['rating_current'].astype(float)
     
     # Drop intermediate columns
     drop_cols = ['stats_data', 'ratings_data', 'career_earnings',
                  'world_rank', 'pdga_number']
-    players_df = players_df.drop(columns=drop_cols)
+    df = df.drop(columns=drop_cols)
     
-    return players_df.sort_values('composite_fp', ascending=False)
+    return df.sort_values('composite_fp', ascending=False)
+
+def generate_player_dataset(input_csv, stats_years, points_map):
+    """
+    Generate complete player dataset with stats and fantasy points.
+    
+    Args:
+        input_csv: Path to CSV containing PDGA player numbers
+        stats_years: List of years to scrape stats for
+        points_map: Dictionary mapping places to fantasy points
+        
+    Returns:
+        DataFrame with player stats and fantasy points
+    """
+    df = scrape_player_data(input_csv, stats_years)
+    return calculate_features(df, points_map, stats_years)
