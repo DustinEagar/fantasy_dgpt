@@ -35,6 +35,8 @@ def extract_ratings_vec(input_data, tiers=None, cutoff_date=None):
         
     return df['Rating'].values
 
+import json
+
 def calculate_fantasy_points(stats_data, points_map, year):
     """
     Calculate fantasy points for a player's tournament results.
@@ -47,7 +49,10 @@ def calculate_fantasy_points(stats_data, points_map, year):
     Returns:
         Total fantasy points
     """
-    df = pd.DataFrame(stats_data[0])
+    if isinstance(stats_data, str):
+        stats_data = json.loads(stats_data)
+        
+    df = pd.DataFrame(stats_data)
     df = df[df['Tier'].isin(['M', 'ES', 'XM'])]
     df = df[df['Date'].dt.year == year]
 

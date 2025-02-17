@@ -11,6 +11,8 @@ from .feature_extraction import (
     calculate_composite_scores
 )
 
+import json
+
 def scrape_player_data(input_csv, stats_years):
     """
     Scrape player data from PDGA website.
@@ -64,6 +66,10 @@ def calculate_features(df, points_map, stats_years):
     Returns:
         DataFrame with calculated features
     """
+    # Parse JSON strings back into Python objects if needed
+    if df['stats_data'].dtype == 'object':
+        df['stats_data'] = df['stats_data'].apply(json.loads)
+    
     # Calculate fantasy points
     for year in stats_years:
         col = f'fantasy_points_{str(year)[-2:]}'
@@ -96,7 +102,9 @@ def generate_player_dataset(input_csv, stats_years, points_map):
         DataFrame with player stats and fantasy points
     """
     df = scrape_player_data(input_csv, stats_years)
-    # Save intermediate scraped data
+    # Save intermediate scraped data with JSON serialization
+    df['stats_data'] = df['stats_data'].apply(json.dumps)
+    df['ratings_data'] = df['ratings_data'].apply(json.dumps)
     df.to_csv('data/scraped_temp.csv', index=False)
     print("Intermediate scraped data saved to data/scraped_temp.csv")
     return calculate_features(df, points_map, stats_years)
