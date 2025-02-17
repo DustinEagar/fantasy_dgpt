@@ -83,9 +83,6 @@ def calculate_features(df, points_map, stats_years):
     # Convert rating to float
     df['rating_current'] = df['rating_current'].astype(float)
     
-    # Drop only intermediate data columns
-    drop_cols = ['stats_data', 'ratings_data']
-    df = df.drop(columns=drop_cols)
     
     return df.sort_values('composite_fp', ascending=False)
 
