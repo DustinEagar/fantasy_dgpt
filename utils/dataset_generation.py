@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from tqdm import tqdm
 import time
 import argparse
@@ -109,6 +110,8 @@ def main():
                       help='Years to scrape stats for (e.g. --years 2023 2024)')
     parser.add_argument('--points-map', type=str, required=True,
                       help='Path to JSON file containing place-to-points mapping')
+    parser.add_argument('--use-scraped', action='store_true',
+                      help='Use existing scraped data from data/scraped_temp.csv')
     
     args = parser.parse_args()
     
@@ -117,7 +120,12 @@ def main():
         points_map = json.load(f)
     
     # Generate dataset
-    df = generate_player_dataset(args.input_csv, args.years, points_map)
+    if args.use_scraped and os.path.exists('data/scraped_temp.csv'):
+        print("Using existing scraped data from data/scraped_temp.csv")
+        df = pd.read_csv('data/scraped_temp.csv')
+        df = calculate_features(df, points_map, args.years)
+    else:
+        df = generate_player_dataset(args.input_csv, args.years, points_map)
     
     # Save to CSV
     df.to_csv(args.output_csv, index=False)
