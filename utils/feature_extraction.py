@@ -5,7 +5,7 @@ from scipy import stats
 def extract_numbers(s):
     """Extract numbers from strings containing formatted text with numbers."""
     import re
-    pattern = r'.*[:$#]\s?((\\d{1,5}(?:,\\d{3})*|\\d+)(\\.\\d+)?)'
+    pattern = r'.*[:$#]\s?((\d{1,5}(?:,\d{3})*|\d+)(\.\d+)?)'
     matches = re.findall(pattern, s)
     if matches:
         return [match[0] for match in matches][0]
@@ -28,7 +28,7 @@ def extract_ratings_vec(input_data, tiers=None, cutoff_date=None):
     
     if cutoff_date:
         cutoff = pd.Timestamp(cutoff_date)
-        df = df[df['Date'] > cutoff_date]
+        df = df[df['Date'] > cutoff]
 
     if tiers:
         df = df[df['Tier'].isin(tiers)]
