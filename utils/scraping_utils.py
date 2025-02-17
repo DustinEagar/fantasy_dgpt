@@ -108,7 +108,7 @@ def scrape_player_stats(pdga_number, years_list):
 
     if stats.shape[0] > 0:
         stats = stats[stats['Tier'].isin(['ES', 'M', 'A', 'B', 'XM'])]
-        stats['Date'] = pd.to_datetime(stats['Dates'].apply(lambda x: x.split('to')[-1].strip()))
+        stats['Date'] = pd.to_datetime(stats['Dates'].apply(lambda x: x.split('to')[-1].strip())).dt.strftime('%Y-%m-%d')
         stats = stats[['Place', 'Tier', 'Date', 'Tournament']]
 
     # Get ratings history
@@ -116,7 +116,7 @@ def scrape_player_stats(pdga_number, years_list):
     try:
         ratings = scrape_pdga_table(url=url_ratings, table_id=table_id_ratings)
         ratings = ratings[ratings['Tier'].isin(['ES', 'M', 'A', 'B', 'XM'])]
-        ratings['Date'] = pd.to_datetime(ratings['Date'].apply(lambda x: x.split('to')[-1].strip()))
+        ratings['Date'] = pd.to_datetime(ratings['Date'].apply(lambda x: x.split('to')[-1].strip())).dt.strftime('%Y-%m-%d')
         ratings = ratings[['Rating', 'Date', 'Tournament', 'Tier', 'Round']]
     except Exception as e:
         ratings = pd.DataFrame()

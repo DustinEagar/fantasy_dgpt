@@ -102,9 +102,10 @@ def generate_player_dataset(input_csv, stats_years, points_map):
         DataFrame with player stats and fantasy points
     """
     df = scrape_player_data(input_csv, stats_years)
-    # Save intermediate scraped data with JSON serialization
-    df['stats_data'] = df['stats_data'].apply(json.dumps)
-    df['ratings_data'] = df['ratings_data'].apply(json.dumps)
+    
+    # Convert DataFrame contents to JSON-serializable format
+    df['stats_data'] = df['stats_data'].apply(lambda x: json.dumps(x, default=str))
+    df['ratings_data'] = df['ratings_data'].apply(lambda x: json.dumps(x, default=str))
     df.to_csv('data/scraped_temp.csv', index=False)
     print("Intermediate scraped data saved to data/scraped_temp.csv")
     return calculate_features(df, points_map, stats_years)

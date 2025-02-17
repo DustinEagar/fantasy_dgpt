@@ -24,7 +24,7 @@ def extract_ratings_vec(input_data, tiers=None, cutoff_date=None):
         numpy array of ratings values
     """
     df = pd.DataFrame(input_data)
-    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = pd.to_datetime(df['Date']) if isinstance(df['Date'].iloc[0], str) else df['Date']
     
     if cutoff_date:
         cutoff = pd.Timestamp(cutoff_date)
