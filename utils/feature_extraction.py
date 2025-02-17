@@ -49,14 +49,25 @@ def calculate_fantasy_points(stats_data, points_map, year):
     Returns:
         Total fantasy points
     """
+    #print('call to calculate_fantasy_points')
     if isinstance(stats_data, str):
         stats_data = json.loads(stats_data)
-        
-    df = pd.DataFrame(stats_data)
+
+    #Handle cases where stats data
+    #not written as list object
+    try:
+        df = pd.DataFrame(stats_data[0])
+    except Exception as e:
+        print('Stats data not in list, parsing standalone json...')
+        df = pd.DataFrame(stats_data)
+    df['Date'] = df['Date'].apply(
+        lambda x : pd.to_datetime(x, format='%Y-%m-%d')
+    )
+
     df = df[df['Tier'].isin(['M', 'ES', 'XM'])]
     df = df[df['Date'].dt.year == year]
 
-    df['event_points'] = df['Place'].astype(int).map(points_map)
+    df['event_points'] = df['Place'].astype(str).map(points_map)
     df.loc[df['Tier'].isin(['M', 'XM']), 'event_points'] *= 1.5
 
     return df['event_points'].sum()
@@ -73,9 +84,10 @@ def calculate_composite_scores(df, year1_weight=0.65, year2_weight=0.35):
     Returns:
         DataFrame with added composite columns
     """
+    #Make this function more flexible in the future
     df['composite_fp'] = (
-        year1_weight * df['fantasy_points_23'] + 
-        year2_weight * df['fantasy_points_22']
+        year1_weight * df['fantasy_points_24'] + 
+        year2_weight * df['fantasy_points_23']
     )
     
     df['composite_percentile'] = df['composite_fp'].apply(
