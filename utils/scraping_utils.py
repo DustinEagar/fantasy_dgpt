@@ -73,10 +73,10 @@ def get_player_career_stats(player_pdga):
         elements = soup.select(selector)
         if elements:
             extracted_text = ' '.join([elem.get_text(strip=True) for elem in elements])
-            # Process numeric values directly
-            collection_dict[key] = extract_numbers(extracted_text) if extracted_text != 'Element not found' else None
         else:
-            collection_dict[key] = None
+            extracted_text = 'Element not found'
+            
+        collection_dict[key] = extracted_text
 
     return collection_dict
 
