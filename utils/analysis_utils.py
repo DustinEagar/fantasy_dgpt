@@ -3,6 +3,68 @@ import json
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+
+import plotly.express as px
+import pandas as pd
+
+def plot_histogram(df: pd.DataFrame, column: str, annotate_top_n: dict = None, nbins: int = None):
+    """
+    Plots a histogram for the given column using Plotly Express.
+    
+    Optionally, annotates the top n rows (sorted by `column` in descending order)
+    for each annotation column specified in annotate_top_n.
+    
+    Parameters:
+      df (pd.DataFrame): The data.
+      column (str): The column to plot in the histogram.
+      annotate_top_n (dict, optional): Dictionary of {annotation_column: n}.
+          For each key, the top n rows (sorted by `column`) will be annotated with 
+          the string value from that annotation column.
+      nbins (int, optional): Number of bins to use in the histogram.
+    """
+    # Check if the main column exists in the DataFrame
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in the DataFrame.")
+    
+    # Create the histogram using Plotly Express with the specified number of bins
+    fig = px.histogram(df, x=column, nbins=nbins, title=f"Histogram of {column}")
+    
+    # If annotation instructions are provided, add them
+    if annotate_top_n:
+        # Ensure each annotation column exists
+        for ann_col in annotate_top_n.keys():
+            if ann_col not in df.columns:
+                raise ValueError(f"Annotation column '{ann_col}' not found in DataFrame.")
+        
+        # Determine a baseline y-position for annotations.
+        # Here we take the maximum bar height from the histogram data.
+        if fig.data and fig.data[0].y:
+            max_y = max(fig.data[0].y)
+        else:
+            max_y = 0
+        
+        # A small offset to position annotations above the highest bar
+        offset = max_y * 0.05 if max_y > 0 else 1
+        
+        # For each annotation column, select the top n rows (sorted by the main column)
+        for ann_col, n in annotate_top_n.items():
+            top_rows = df.sort_values(by=column, ascending=False).head(n)
+            annotation_y_counter = 0
+            for _, row in top_rows.iterrows():
+                # Add an annotation at the x value from the row and above the histogram
+                fig.add_annotation(
+                    x=row[column],
+                    y=max_y + annotation_y_counter*offset,
+                    text=str(row[ann_col]),
+                    showarrow=True,
+                    arrowhead=2,
+                    ax=0,
+                    ay=-20  # Adjust arrow length as needed
+                )
+                annotation_y_counter+=1
+    
+    fig.show()
+    
 def player_historic_linechart(df, player_name):
     """
     Create an interactive line chart showing a player's historical tournament performance.
