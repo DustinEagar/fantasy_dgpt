@@ -384,7 +384,7 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
 import ast
 import re
 
-def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = None):
+def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = None, player_name: str = None):
     """
     Create an interactive scatter plot comparing two columns, with optional coloring.
     
@@ -393,6 +393,7 @@ def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = 
         col_x: Column name for x-axis
         col_y: Column name for y-axis
         color_col: Optional column name for point colors
+        player_name: Optional player name to highlight
         
     Returns:
         Plotly Figure object with the scatter plot
@@ -411,7 +412,7 @@ def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = 
     if color_col:
         hover_data[color_col] = ':.2f'
         
-    # Create scatter plot
+    # Create base scatter plot with reduced opacity for all points
     fig = px.scatter(
         df,
         x=col_x,
@@ -423,8 +424,35 @@ def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = 
             col_x: col_x.replace('_', ' ').title(),
             col_y: col_y.replace('_', ' ').title(),
             color_col: color_col.replace('_', ' ').title() if color_col else None
-        }
+        },
+        opacity=0.6 if player_name else 1.0  # Reduce opacity if highlighting a player
     )
+    
+    # Add highlighted point for specified player
+    if player_name:
+        player_data = df[df['Player'] == player_name]
+        if len(player_data) > 0:
+            hover_dict = {col: player_data[col].iloc[0] for col in hover_data.keys()}
+            fig.add_trace(
+                go.Scatter(
+                    x=[player_data[col_x].iloc[0]],
+                    y=[player_data[col_y].iloc[0]],
+                    mode='markers',
+                    marker=dict(
+                        size=12,
+                        color='red',
+                        line=dict(color='black', width=1)
+                    ),
+                    name=player_name,
+                    hovertemplate=(
+                        f"<b>{player_name}</b><br>" +
+                        f"{col_x}: {hover_dict[col_x]:.2f}<br>" +
+                        f"{col_y}: {hover_dict[col_y]:.2f}<br>" +
+                        (f"{color_col}: {hover_dict[color_col]:.2f}" if color_col else "") +
+                        "<extra></extra>"
+                    )
+                )
+            )
     
     return fig
 
