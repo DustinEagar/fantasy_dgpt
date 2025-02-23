@@ -8,6 +8,74 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 from scipy import stats
+from datetime import datetime
+
+def ratings_composite(ratings_data, decay_rate=0.1, ref_date=None):
+    """
+    Calculate a composite rating from a player's ratings history using exponential time decay.
+    
+    Args:
+        ratings_data: Player's ratings data dictionary containing tournament history
+        decay_rate: Controls how quickly older ratings decay (higher = faster decay)
+        ref_date: Reference date for calculating time differences (defaults to most recent tournament)
+        
+    Returns:
+        float: Composite rating weighted by recency
+    """
+    # Convert ratings data to DataFrame if needed
+    if isinstance(ratings_data, str):
+        import json
+        try:
+            ratings_data = json.loads(ratings_data)
+        except:
+            import ast
+            ratings_data = ast.literal_eval(ratings_data)
+    
+    if isinstance(ratings_data, list):
+        ratings_data = ratings_data[0]
+        
+    # Create DataFrame
+    df = pd.DataFrame({
+        'Rating': ratings_data['Rating'],
+        'Date': ratings_data['Date'],
+        'Tier': ratings_data['Tier']
+    })
+    
+    # Convert types
+    df['Rating'] = pd.to_numeric(df['Rating'])
+    df['Date'] = pd.to_datetime(df['Date'])
+    
+    # Filter for relevant tiers
+    valid_tiers = ['A', 'ES', 'M', 'XM']
+    df = df[df['Tier'].isin(valid_tiers)]
+    
+    if len(df) == 0:
+        return None
+        
+    # Sort by date
+    df = df.sort_values('Date')
+    
+    # Use most recent date if ref_date not provided
+    if ref_date is None:
+        ref_date = df['Date'].max()
+    elif isinstance(ref_date, str):
+        ref_date = pd.to_datetime(ref_date)
+    
+    # Calculate time differences in years
+    df['years_ago'] = (ref_date - df['Date']).dt.total_seconds() / (365.25 * 24 * 60 * 60)
+    
+    # Calculate weights with exponential decay
+    df['weight'] = np.exp(-decay_rate * df['years_ago'])
+    
+    # Zero out weights for tournaments more than 3 years old
+    df.loc[df['years_ago'] > 3, 'weight'] = 0
+    
+    # Calculate weighted average
+    if df['weight'].sum() > 0:
+        composite_rating = (df['Rating'] * df['weight']).sum() / df['weight'].sum()
+        return round(composite_rating, 1)
+    else:
+        return None
 
 def plot_histogram(df: pd.DataFrame, column: str, annotate_top_n: dict = None, nbins: int = None):
     """
