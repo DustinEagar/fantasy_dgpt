@@ -218,12 +218,8 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
     
     player_value = player_row[column].iloc[0]
     
-    # Calculate player's percentile
-    percentile = np.round(stats.percentileofscore(df[column], player_value), 1)
-    
-    # Calculate fraction of max
-    max_value = df[column].max()
-    frac_of_max = np.round(player_value / max_value * 100, 1)
+    # Get player summary stats
+    summary = player_summary(df, column, player_name)
     
     # Create the histogram
     fig = px.histogram(df, x=column, nbins=nbins, title=f"Histogram of {column}")
@@ -239,9 +235,9 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
         x=player_value,
         y=max_y * 1.5,
         text=(f"{player_name}<br>" +
-              f"Value: {player_value:.1f}<br>" +
-              f"Percentile: {percentile}<br>" +
-              f"% of Max: {frac_of_max}%"),
+              f"Value: {summary['value']:.1f}<br>" +
+              f"Percentile: {summary['percentile']}<br>" +
+              f"% of Max: {summary['pct_of_max']}%"),
         showarrow=True,
         arrowhead=2,
         ax=0,
