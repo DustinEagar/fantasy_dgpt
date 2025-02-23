@@ -132,3 +132,119 @@ def player_historic_linechart(df, player_name):
     )
     
     return fig
+
+def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2025.json'):
+    """
+    Create an interactive line chart showing a player's fantasy points per tournament.
+    
+    Args:
+        df: DataFrame containing player data
+        player_name: Player name to filter and use in chart title
+        points_map_file: Path to JSON file containing points mapping
+        
+    Returns:
+        Plotly Figure object with the line chart
+    """
+    # Get player's stats data
+    player_row = df[df['Player'] == player_name].iloc[0]
+    stats_data = player_row['stats_data']
+    
+    # Load points mapping
+    with open(points_map_file) as f:
+        points_map = json.load(f)
+    
+    # Handle JSON decoding
+    if isinstance(stats_data, str):
+        try:
+            # First try to safely evaluate as a Python literal
+            try:
+                python_obj = ast.literal_eval(stats_data)
+                stats_data = json.dumps(python_obj)
+            except:
+                # If literal_eval fails, fall back to manual cleaning
+                stats_data = stats_data.replace('\\"', '"').replace("\\'", "'")
+                stats_data = stats_data.replace("'", '"')
+                stats_data = re.sub(r'"([^"]+)"s\s', r'"\1\'s ', stats_data)
+                stats_data = (stats_data.replace('True', 'true')
+                             .replace('False', 'false')
+                             .replace('None', 'null')
+                             .replace('},]', '}]')
+                             .replace(',}', '}')
+                             .strip())
+            
+            stats_data = json.loads(stats_data)
+        except Exception as e:
+            print(f"Error preprocessing JSON string: {e}")
+            return None
+            
+    # Convert stats to DataFrame
+    try:
+        if isinstance(stats_data, list):
+            stats_df = pd.DataFrame(stats_data[0])
+        else:
+            stats_df = pd.DataFrame(stats_data)
+    except Exception as e:
+        print(f"Error creating DataFrame: {e}")
+        return None
+        
+    # Convert dates and sort chronologically
+    stats_df['Date'] = pd.to_datetime(stats_df['Date'])
+    stats_df = stats_df.sort_values('Date')
+    
+    # Calculate fantasy points for each tournament
+    stats_df['Points'] = stats_df.apply(
+        lambda row: points_map.get(row['Place'], 0) * (1.5 if row['Tier'] in ['M', 'XM'] else 1.0)
+        if row['Tier'] in ['M', 'ES', 'XM'] else 0,
+        axis=1
+    )
+    
+    # Create figure
+    fig = go.Figure()
+    
+    # Add points line
+    fig.add_trace(
+        go.Scatter(
+            x=stats_df['Date'],
+            y=stats_df['Points'],
+            name="Fantasy Points",
+            line=dict(color='blue'),
+            hovertemplate="Date: %{x}<br>Points: %{customdata}<br>Place: %{text}<extra></extra>",
+            customdata=stats_df['Points'].round(1),
+            text=stats_df['Place']
+        )
+    )
+    
+    # Add tier markers
+    for tier in stats_df['Tier'].unique():
+        if tier in ['M', 'ES', 'XM']:  # Only show scoring events
+            mask = stats_df['Tier'] == tier
+            fig.add_trace(
+                go.Scatter(
+                    x=stats_df[mask]['Date'],
+                    y=stats_df[mask]['Points'],
+                    name=f"Tier {tier}",
+                    mode='markers',
+                    marker=dict(size=8),
+                    hovertemplate=(
+                        "Date: %{x}<br>" +
+                        "Points: %{customdata}<br>" +
+                        "Place: %{text}<br>" +
+                        "Tournament: %{text2}<extra></extra>"
+                    ),
+                    text=stats_df[mask]['Place'],
+                    text2=stats_df[mask]['Tournament'],
+                    customdata=stats_df[mask]['Points'].round(1)
+                )
+            )
+    
+    # Update layout
+    title = f"Fantasy Points History - {player_name}" if player_name else "Fantasy Points History"
+    fig.update_layout(
+        title=title,
+        xaxis_title="Date",
+        yaxis_title="Fantasy Points",
+        hovermode='x unified',
+        showlegend=True
+    )
+    
+    return fig
