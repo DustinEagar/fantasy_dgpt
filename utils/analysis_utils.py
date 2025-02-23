@@ -24,24 +24,24 @@ def player_historic_linechart(df, player_name):
             # Clean and normalize JSON string
             import re
             
-            # First normalize all quotes to double quotes
-            stats_data = re.sub(r'(?<!\\)\'', '"', stats_data)
+            # Remove any existing escapes
+            stats_data = stats_data.replace('\\', '')
             
-            # Fix escaped quotes and standardize
-            stats_data = (stats_data.replace('\\"', "'")
-                         .replace('\\\'', "'")
-                         .replace('True', 'true')
+            # First handle array values with mixed quotes
+            stats_data = re.sub(r'\[(.*?)\]', 
+                              lambda m: '[' + m.group(1).replace("'", '"') + ']',
+                              stats_data)
+            
+            # Then normalize remaining quotes to double quotes
+            stats_data = stats_data.replace("'", '"')
+            
+            # Fix standard JSON boolean/null values
+            stats_data = (stats_data.replace('True', 'true')
                          .replace('False', 'false')
                          .replace('None', 'null')
                          .replace('},]', '}]')
                          .replace(',}', '}')
                          .strip())
-            
-            # Clean up any remaining problematic quotes
-            stats_data = re.sub(r'"(\w+)\\?"(\w+)"', r'"\1\'\2"', stats_data)  # Fix quotes within words
-            stats_data = re.sub(r'([{\[,]\s*)"([^"]+)":\s*\[(.*?)\]', 
-                              lambda m: f'{m.group(1)}"{m.group(2)}":[{m.group(3).replace("\'", '"')}]',
-                              stats_data)  # Normalize array value quotes
             
             try:
                 stats_data = json.loads(stats_data)
