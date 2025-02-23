@@ -3,33 +3,33 @@ import json
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-def player_historic_linechart(stats_data, player_name=None):
+def player_historic_linechart(df, player_name):
     """
     Create an interactive line chart showing a player's historical tournament performance.
     
     Args:
-        stats_data: Dictionary or JSON string containing tournament stats
-        player_name: Optional player name for chart title
+        df: DataFrame containing player data
+        player_name: Player name to filter and use in chart title
         
     Returns:
         Plotly Figure object with the line chart
     """
-    # Parse stats data if it's a string
-    if isinstance(stats_data, str):
-        stats_data = json.loads(stats_data)
+    # Get player's stats data
+    player_row = df[df['Player'] == player_name].iloc[0]
+    stats_data = json.loads(player_row['stats_data'])
     
-    # Convert to DataFrame, handling both list and direct dict formats
+    # Convert stats to DataFrame
     try:
-        df = pd.DataFrame(stats_data[0])
+        stats_df = pd.DataFrame(stats_data[0])
     except:
-        df = pd.DataFrame(stats_data)
+        stats_df = pd.DataFrame(stats_data)
         
     # Convert dates and sort chronologically
-    df['Date'] = pd.to_datetime(df['Date'])
-    df = df.sort_values('Date')
+    stats_df['Date'] = pd.to_datetime(stats_df['Date'])
+    stats_df = stats_df.sort_values('Date')
     
     # Convert places to numeric, handling 'DNF' etc
-    df['Place_Numeric'] = pd.to_numeric(df['Place'], errors='coerce')
+    stats_df['Place_Numeric'] = pd.to_numeric(stats_df['Place'], errors='coerce')
     
     # Create figure with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -37,8 +37,8 @@ def player_historic_linechart(stats_data, player_name=None):
     # Add place line (inverted)
     fig.add_trace(
         go.Scatter(
-            x=df['Date'],
-            y=-df['Place_Numeric'],
+            x=stats_df['Date'],
+            y=-stats_df['Place_Numeric'],
             name="Place",
             line=dict(color='blue'),
             hovertemplate="Date: %{x}<br>Place: %{customdata}<extra></extra>",
@@ -48,12 +48,12 @@ def player_historic_linechart(stats_data, player_name=None):
     )
     
     # Add tier markers
-    for tier in df['Tier'].unique():
-        mask = df['Tier'] == tier
+    for tier in stats_df['Tier'].unique():
+        mask = stats_df['Tier'] == tier
         fig.add_trace(
             go.Scatter(
-                x=df[mask]['Date'],
-                y=-df[mask]['Place_Numeric'],
+                x=stats_df[mask]['Date'],
+                y=-stats_df[mask]['Place_Numeric'],
                 name=f"Tier {tier}",
                 mode='markers',
                 marker=dict(size=8),
