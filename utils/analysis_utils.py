@@ -212,10 +212,10 @@ def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2
             name="Fantasy Points",
             line=dict(color='blue'),
             hovertemplate=(
+                "%{customdata[2]}<br>" +
                 "Date: %{x}<br>" +
-                "Points: %{customdata[0]}<br>" +
-                "Place: %{customdata[1]}<br>" +
-                "Tournament: %{customdata[2]}<extra></extra>"
+                "Points: %{customdata[0]:.1f}<br>" +
+                "Place: %{customdata[1]}<extra></extra>"
             ),
             customdata=list(zip(
                 stats_df['Points'].round(1),
@@ -237,10 +237,10 @@ def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2
                     mode='markers',
                     marker=dict(size=8),
                     hovertemplate=(
+                        "%{customdata[2]}<br>" +
                         "Date: %{x}<br>" +
-                        "Points: %{customdata[0]}<br>" +
-                        "Place: %{customdata[1]}<br>" +
-                        "Tournament: %{customdata[2]}<extra></extra>"
+                        "Points: %{customdata[0]:.1f}<br>" +
+                        "Place: %{customdata[1]}<extra></extra>"
                     ),
                     customdata=list(zip(
                         stats_df[mask]['Points'].round(1),
@@ -256,7 +256,7 @@ def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2
         title=title,
         xaxis_title="Date",
         yaxis_title="Fantasy Points",
-        hovermode='x unified',
+        hovermode='closest',
         showlegend=True
     )
     
