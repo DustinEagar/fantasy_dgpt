@@ -42,7 +42,7 @@ def player_historic_linechart(df, player_name):
             name="Place",
             line=dict(color='blue'),
             hovertemplate="Date: %{x}<br>Place: %{customdata}<extra></extra>",
-            customdata=df['Place_Numeric']
+            customdata=stats_df['Place_Numeric']
         ),
         secondary_y=False
     )
@@ -62,8 +62,8 @@ def player_historic_linechart(df, player_name):
                     "Place: %{customdata}<br>" +
                     "Tournament: %{text}<extra></extra>"
                 ),
-                text=df[mask]['Tournament'],
-                customdata=df[mask]['Place_Numeric']
+                text=stats_df[mask]['Tournament'],
+                customdata=stats_df[mask]['Place_Numeric']
             ),
             secondary_y=False
         )
