@@ -21,12 +21,28 @@ def player_historic_linechart(df, player_name):
     # Handle JSON decoding
     if isinstance(stats_data, str):
         try:
-            # Replace single quotes with double quotes and fix boolean values
-            stats_data = stats_data.replace("'", '"').replace('True', 'true').replace('False', 'false')
-            stats_data = json.loads(stats_data)
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-            print(f"Problematic JSON string: {stats_data}")
+            # Clean and normalize JSON string
+            stats_data = (stats_data.replace("'", '"')
+                         .replace('True', 'true')
+                         .replace('False', 'false')
+                         .replace('None', 'null')
+                         .replace('},]', '}]')  # Fix trailing commas
+                         .replace(',}', '}')
+                         .strip())
+            
+            try:
+                stats_data = json.loads(stats_data)
+            except json.JSONDecodeError as e:
+                # If error, try to show the problematic section
+                error_pos = e.pos
+                context = stats_data[max(0, error_pos-50):min(len(stats_data), error_pos+50)]
+                print(f"Error decoding JSON near position {error_pos}:")
+                print(f"Context: ...{context}...")
+                print(f"Full error: {e}")
+                return None
+                
+        except Exception as e:
+            print(f"Error preprocessing JSON string: {e}")
             return None
             
     # Convert stats to DataFrame
