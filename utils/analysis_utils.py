@@ -40,7 +40,7 @@ def player_historic_linechart(df, player_name):
             # Clean up any remaining problematic quotes
             stats_data = re.sub(r'"(\w+)\\?"(\w+)"', r'"\1\'\2"', stats_data)  # Fix quotes within words
             stats_data = re.sub(r'([{\[,]\s*)"([^"]+)":\s*\[(.*?)\]', 
-                              lambda m: f'{m.group(1)}"{m.group(2)}":[{m.group(3).replace("\'", \'"\')}]',
+                              lambda m: f'{m.group(1)}"{m.group(2)}":[{m.group(3).replace("\'", '"')}]',
                               stats_data)  # Normalize array value quotes
             
             try:
