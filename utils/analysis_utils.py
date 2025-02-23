@@ -197,6 +197,42 @@ def player_historic_linechart(df, player_name):
     
     return fig
 
+def player_summary(df: pd.DataFrame, column: str, player_name: str):
+    """
+    Get summary statistics for a player's value in the given column.
+    
+    Parameters:
+      df (pd.DataFrame): The data.
+      column (str): The column to analyze.
+      player_name (str): Name of the player to summarize.
+      
+    Returns:
+      dict: Dictionary containing player's value, percentile, and percent of max
+    """
+    # Check if the main column exists in the DataFrame
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in the DataFrame.")
+        
+    # Get player's value
+    player_row = df[df['Player'] == player_name]
+    if len(player_row) == 0:
+        raise ValueError(f"Player '{player_name}' not found in DataFrame.")
+    
+    player_value = player_row[column].iloc[0]
+    
+    # Calculate player's percentile
+    percentile = np.round(stats.percentileofscore(df[column], player_value), 1)
+    
+    # Calculate fraction of max
+    max_value = df[column].max()
+    frac_of_max = np.round(player_value / max_value * 100, 1)
+    
+    return {
+        'value': player_value,
+        'percentile': percentile,
+        'pct_of_max': frac_of_max
+    }
+
 def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins: int = None):
     """
     Plots a histogram for the given column and annotates the specified player's value.
