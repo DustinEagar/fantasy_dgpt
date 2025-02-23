@@ -384,6 +384,50 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
 import ast
 import re
 
+def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = None):
+    """
+    Create an interactive scatter plot comparing two columns, with optional coloring.
+    
+    Args:
+        df: DataFrame containing player data
+        col_x: Column name for x-axis
+        col_y: Column name for y-axis
+        color_col: Optional column name for point colors
+        
+    Returns:
+        Plotly Figure object with the scatter plot
+    """
+    # Validate columns exist
+    for col in [col_x, col_y]:
+        if col not in df.columns:
+            raise ValueError(f"Column '{col}' not found in DataFrame")
+    if color_col and color_col not in df.columns:
+        raise ValueError(f"Color column '{color_col}' not found in DataFrame")
+            
+    # Create hover text
+    hover_data = {'Player': True}
+    for col in [col_x, col_y]:
+        hover_data[col] = ':.2f'
+    if color_col:
+        hover_data[color_col] = ':.2f'
+        
+    # Create scatter plot
+    fig = px.scatter(
+        df,
+        x=col_x,
+        y=col_y,
+        color=color_col,
+        hover_data=hover_data,
+        title=f"{col_y} vs {col_x}",
+        labels={
+            col_x: col_x.replace('_', ' ').title(),
+            col_y: col_y.replace('_', ' ').title(),
+            color_col: color_col.replace('_', ' ').title() if color_col else None
+        }
+    )
+    
+    return fig
+
 def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2025.json'):
     """
     Create an interactive line chart showing a player's fantasy points per tournament.
