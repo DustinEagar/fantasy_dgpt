@@ -227,10 +227,15 @@ def player_summary(df: pd.DataFrame, column: str, player_name: str):
     max_value = df[column].max()
     frac_of_max = np.round(player_value / max_value * 100, 1)
     
+    # Calculate rank (1-based)
+    rank = (df[column] > player_value).sum() + 1
+    total = len(df)
+    
     return {
         'value': player_value,
         'percentile': percentile,
-        'pct_of_max': frac_of_max
+        'pct_of_max': frac_of_max,
+        'rank': f"{rank}/{total}"
     }
 
 def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins: int = None):
@@ -272,6 +277,7 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
         y=max_y * 1.5,
         text=(f"{player_name}<br>" +
               f"Value: {summary['value']:.1f}<br>" +
+              f"Rank: {summary['rank']}<br>" +
               f"Percentile: {summary['percentile']}<br>" +
               f"% of Max: {summary['pct_of_max']}%"),
         showarrow=True,
