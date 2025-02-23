@@ -21,9 +21,12 @@ def player_historic_linechart(df, player_name):
     # Handle JSON decoding
     if isinstance(stats_data, str):
         try:
+            # Replace single quotes with double quotes and fix boolean values
+            stats_data = stats_data.replace("'", '"').replace('True', 'true').replace('False', 'false')
             stats_data = json.loads(stats_data)
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
+            print(f"Problematic JSON string: {stats_data}")
             return None
             
     # Convert stats to DataFrame
