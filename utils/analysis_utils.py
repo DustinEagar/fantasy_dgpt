@@ -211,9 +211,17 @@ def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2
             y=stats_df['Points'],
             name="Fantasy Points",
             line=dict(color='blue'),
-            hovertemplate="Date: %{x}<br>Points: %{customdata}<br>Place: %{text}<extra></extra>",
-            customdata=stats_df['Points'].round(1),
-            text=stats_df['Place']
+            hovertemplate=(
+                "Date: %{x}<br>" +
+                "Points: %{customdata[0]}<br>" +
+                "Place: %{customdata[1]}<br>" +
+                "Tournament: %{customdata[2]}<extra></extra>"
+            ),
+            customdata=list(zip(
+                stats_df['Points'].round(1),
+                stats_df['Place'],
+                stats_df['Tournament']
+            ))
         )
     )
     
@@ -230,15 +238,15 @@ def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2
                     marker=dict(size=8),
                     hovertemplate=(
                         "Date: %{x}<br>" +
-                        "Points: %{customdata}<br>" +
-                        "Place: %{text[0]}<br>" +
-                        "Tournament: %{text[1]}<extra></extra>"
+                        "Points: %{customdata[0]}<br>" +
+                        "Place: %{customdata[1]}<br>" +
+                        "Tournament: %{customdata[2]}<extra></extra>"
                     ),
-                    text=[
+                    customdata=list(zip(
+                        stats_df[mask]['Points'].round(1),
                         stats_df[mask]['Place'],
                         stats_df[mask]['Tournament']
-                    ],
-                    customdata=stats_df[mask]['Points'].round(1)
+                    ))
                 )
             )
     
