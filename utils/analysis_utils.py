@@ -80,11 +80,11 @@ def player_historic_linechart(df, player_name):
     # Create figure with secondary y-axis
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     
-    # Add place line (inverted)
+    # Add place line
     fig.add_trace(
         go.Scatter(
             x=stats_df['Date'],
-            y=-stats_df['Place_Numeric'],
+            y=stats_df['Place_Numeric'],
             name="Place",
             line=dict(color='blue'),
             hovertemplate="Date: %{x}<br>Place: %{customdata}<extra></extra>",
@@ -99,7 +99,7 @@ def player_historic_linechart(df, player_name):
         fig.add_trace(
             go.Scatter(
                 x=stats_df[mask]['Date'],
-                y=-stats_df[mask]['Place_Numeric'],
+                y=stats_df[mask]['Place_Numeric'],
                 name=f"Tier {tier}",
                 mode='markers',
                 marker=dict(size=8),
@@ -119,12 +119,16 @@ def player_historic_linechart(df, player_name):
     fig.update_layout(
         title=title,
         xaxis_title="Date",
-        yaxis_title="Place (inverted)",
+        yaxis_title="Place",
         hovermode='x unified',
         showlegend=True
     )
     
-    # Invert y-axis so better places are higher
-    fig.update_yaxes(autorange="reversed", secondary_y=False)
+    # Configure y-axis to show better places (1st) at the top
+    fig.update_yaxes(
+        autorange="reversed",
+        rangemode="tozero",
+        secondary_y=False
+    )
     
     return fig
