@@ -35,6 +35,11 @@ def player_historic_linechart(df, player_name):
                 stats_data = stats_data.replace('"s ', "'s ")
             stats_data = stats_data.replace('""', '"')  # Fix any double quotes
             
+            # Fix quotes within tournament names
+            import re
+            stats_data = re.sub(r'"([^"]*)"s([^"]*)"', r'"\1\'s\2"', stats_data)
+            stats_data = re.sub(r'"([^"]*)"([^"]*)"', r'"\1\'\2"', stats_data)
+            
             try:
                 stats_data = json.loads(stats_data)
             except json.JSONDecodeError as e:
