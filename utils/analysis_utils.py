@@ -22,23 +22,26 @@ def player_historic_linechart(df, player_name):
     if isinstance(stats_data, str):
         try:
             # Clean and normalize JSON string
-            stats_data = (stats_data.replace("'", '"')
+            import re
+            
+            # First normalize all quotes to double quotes
+            stats_data = re.sub(r'(?<!\\)\'', '"', stats_data)
+            
+            # Fix escaped quotes and standardize
+            stats_data = (stats_data.replace('\\"', "'")
+                         .replace('\\\'', "'")
                          .replace('True', 'true')
                          .replace('False', 'false')
                          .replace('None', 'null')
-                         .replace('},]', '}]')  # Fix trailing commas
+                         .replace('},]', '}]')
                          .replace(',}', '}')
                          .strip())
             
-            # Fix problematic quotes in tournament names
-            while '"s ' in stats_data:  # Handle cases like Discraft"s
-                stats_data = stats_data.replace('"s ', "'s ")
-            stats_data = stats_data.replace('""', '"')  # Fix any double quotes
-            
-            # Fix quotes within tournament names
-            import re
-            stats_data = re.sub(r'"([^"]*)"s([^"]*)"', r'"\1\'s\2"', stats_data)
-            stats_data = re.sub(r'"([^"]*)"([^"]*)"', r'"\1\'\2"', stats_data)
+            # Clean up any remaining problematic quotes
+            stats_data = re.sub(r'"(\w+)\\?"(\w+)"', r'"\1\'\2"', stats_data)  # Fix quotes within words
+            stats_data = re.sub(r'([{\[,]\s*)"([^"]+)":\s*\[(.*?)\]', 
+                              lambda m: f'{m.group(1)}"{m.group(2)}":[{m.group(3).replace("\'", \'"\')}]',
+                              stats_data)  # Normalize array value quotes
             
             try:
                 stats_data = json.loads(stats_data)
