@@ -12,7 +12,7 @@ from utils.analysis_utils import (
 app = Dash(__name__)
 
 # Load the data
-df = pd.read_csv('data/players_25_crawled_sample.csv')
+df = pd.read_csv('data/players_crawled_25_updated2.csv')
 player_list = sorted(df['Player'].unique())
 
 # Define the app layout
@@ -68,11 +68,11 @@ app.layout = html.Div([
 )
 def update_player_analysis(selected_player):
     # Generate player summary
-    rating_summary = player_summary(df, 'rating_2024', selected_player)
+    rating_summary = player_summary(df, 'composite_rating', selected_player)
     
     summary_div = html.Div([
         html.P([
-            f"2024 Rating: {rating_summary['value']:.1f}",
+            f"Composite Rating: {rating_summary['value']:.1f}",
             html.Br(),
             f"Rank: {rating_summary['rank']}",
             html.Br(),
@@ -85,7 +85,7 @@ def update_player_analysis(selected_player):
     # Generate visualizations
     historic_fig = player_historic_linechart(df, selected_player)
     scoring_fig = player_scoring_linechart(df, selected_player)
-    rating_fig = plot_player_histogram(df, 'rating_2024', selected_player)
+    rating_fig = plot_player_histogram(df, 'composite_rating', selected_player)
     
     return summary_div, historic_fig, scoring_fig, rating_fig
 
