@@ -10,27 +10,51 @@ import numpy as np
 from scipy import stats
 from datetime import datetime
 
-def ratings_composite(ratings_data, decay_rate=0.1, ref_date=None):
+def ratings_composite(df: pd.DataFrame, player_name: str, decay_rate=0.1, ref_date=None):
     """
     Calculate a composite rating from a player's ratings history using exponential time decay.
     
     Args:
-        ratings_data: Player's ratings data dictionary containing tournament history
+        df: DataFrame containing player data
+        player_name: Name of the player to analyze
         decay_rate: Controls how quickly older ratings decay (higher = faster decay)
         ref_date: Reference date for calculating time differences (defaults to most recent tournament)
         
     Returns:
         float: Composite rating weighted by recency
     """
-    # Convert ratings data to DataFrame if needed
+    # Get player's ratings data
+    player_row = df[df['Player'] == player_name].iloc[0]
+    ratings_data = player_row['ratings_data']
+    
+    # Handle JSON decoding
     if isinstance(ratings_data, str):
         import json
         try:
-            ratings_data = json.loads(ratings_data)
-        except:
+            # First try to safely evaluate as a Python literal
             import ast
-            ratings_data = ast.literal_eval(ratings_data)
-    
+            try:
+                python_obj = ast.literal_eval(ratings_data)
+                ratings_data = json.dumps(python_obj)
+            except:
+                # If literal_eval fails, fall back to manual cleaning
+                ratings_data = ratings_data.replace('\\"', '"').replace("\\'", "'")
+                ratings_data = ratings_data.replace("'", '"')
+                ratings_data = re.sub(r'"([^"]+)"s\s', r'"\1\'s ', ratings_data)
+                
+                # Fix standard JSON values
+                ratings_data = (ratings_data.replace('True', 'true')
+                             .replace('False', 'false')
+                             .replace('None', 'null')
+                             .replace('},]', '}]')
+                             .replace(',}', '}')
+                             .strip())
+            
+            ratings_data = json.loads(ratings_data)
+        except Exception as e:
+            print(f"Error processing ratings data for {player_name}: {e}")
+            return None
+            
     if isinstance(ratings_data, list):
         ratings_data = ratings_data[0]
         
