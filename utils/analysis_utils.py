@@ -195,6 +195,60 @@ def player_historic_linechart(df, player_name):
     
     return fig
 
+def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins: int = None):
+    """
+    Plots a histogram for the given column and annotates the specified player's value.
+    
+    Parameters:
+      df (pd.DataFrame): The data.
+      column (str): The column to plot in the histogram.
+      player_name (str): Name of the player to annotate.
+      nbins (int, optional): Number of bins to use in the histogram.
+    """
+    # Check if the main column exists in the DataFrame
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in the DataFrame.")
+        
+    # Get player's value
+    player_row = df[df['Player'] == player_name]
+    if len(player_row) == 0:
+        raise ValueError(f"Player '{player_name}' not found in DataFrame.")
+    
+    player_value = player_row[column].iloc[0]
+    
+    # Calculate player's percentile
+    percentile = np.round(stats.percentileofscore(df[column], player_value), 1)
+    
+    # Calculate fraction of max
+    max_value = df[column].max()
+    frac_of_max = np.round(player_value / max_value * 100, 1)
+    
+    # Create the histogram
+    fig = px.histogram(df, x=column, nbins=nbins, title=f"Histogram of {column}")
+    
+    # Determine annotation y-position
+    if fig.data and fig.data[0].y:
+        max_y = max(fig.data[0].y)
+    else:
+        max_y = 0
+    
+    # Add player annotation
+    fig.add_annotation(
+        x=player_value,
+        y=max_y * 1.1,
+        text=(f"{player_name}<br>" +
+              f"Value: {player_value:.1f}<br>" +
+              f"Percentile: {percentile}<br>" +
+              f"% of Max: {frac_of_max}%"),
+        showarrow=True,
+        arrowhead=2,
+        ax=0,
+        ay=-40
+    )
+    
+    fig.show()
+    return fig
+
 import ast
 import re
 
