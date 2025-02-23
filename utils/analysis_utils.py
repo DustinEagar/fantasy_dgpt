@@ -24,21 +24,16 @@ def player_historic_linechart(df, player_name):
             # Clean and normalize JSON string
             import re
             
-            # First fix tournament names with apostrophes
-            stats_data = re.sub(r'"([^"]*)"s([^"]*)"', r'"\1\'s\2"', stats_data)
+            # First standardize all quotes to single quotes
+            stats_data = stats_data.replace('"', "'")
             
-            # Remove any existing escapes
-            stats_data = stats_data.replace('\\', '')
+            # Fix tournament names with apostrophes
+            stats_data = re.sub(r"'([^']*)'s([^']*)'", r"'\1's\2'", stats_data)
             
-            # Handle array values with mixed quotes
-            stats_data = re.sub(r'\[(.*?)\]', 
-                              lambda m: '[' + m.group(1).replace("'", '"') + ']',
-                              stats_data)
+            # Now convert everything back to double quotes except apostrophes
+            stats_data = re.sub(r"'([^']*)'", r'"\1"', stats_data)
             
-            # Then normalize remaining quotes to double quotes, preserving fixed apostrophes
-            stats_data = re.sub(r'(?<!\\)\'(?!s\s)', '"', stats_data)
-            
-            # Fix standard JSON boolean/null values
+            # Fix standard JSON values
             stats_data = (stats_data.replace('True', 'true')
                          .replace('False', 'false')
                          .replace('None', 'null')
