@@ -237,7 +237,7 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
     # Add player annotation
     fig.add_annotation(
         x=player_value,
-        y=max_y * 1.1,
+        y=max_y * 1.5,
         text=(f"{player_name}<br>" +
               f"Value: {player_value:.1f}<br>" +
               f"Percentile: {percentile}<br>" +
