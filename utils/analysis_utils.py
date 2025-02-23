@@ -231,11 +231,13 @@ def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2
                     hovertemplate=(
                         "Date: %{x}<br>" +
                         "Points: %{customdata}<br>" +
-                        "Place: %{text}<br>" +
-                        "Tournament: %{text2}<extra></extra>"
+                        "Place: %{text[0]}<br>" +
+                        "Tournament: %{text[1]}<extra></extra>"
                     ),
-                    text=stats_df[mask]['Place'],
-                    text2=stats_df[mask]['Tournament'],
+                    text=[
+                        stats_df[mask]['Place'],
+                        stats_df[mask]['Tournament']
+                    ],
                     customdata=stats_df[mask]['Points'].round(1)
                 )
             )
