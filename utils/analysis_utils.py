@@ -6,6 +6,8 @@ from plotly.subplots import make_subplots
 
 import plotly.express as px
 import pandas as pd
+import numpy as np
+from scipy import stats
 
 def plot_histogram(df: pd.DataFrame, column: str, annotate_top_n: dict = None, nbins: int = None):
     """
