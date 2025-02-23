@@ -16,13 +16,25 @@ def player_historic_linechart(df, player_name):
     """
     # Get player's stats data
     player_row = df[df['Player'] == player_name].iloc[0]
-    stats_data = json.loads(player_row['stats_data'])
+    stats_data = player_row['stats_data']
     
+    # Handle JSON decoding
+    if isinstance(stats_data, str):
+        try:
+            stats_data = json.loads(stats_data)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            return None
+            
     # Convert stats to DataFrame
     try:
-        stats_df = pd.DataFrame(stats_data[0])
-    except:
-        stats_df = pd.DataFrame(stats_data)
+        if isinstance(stats_data, list):
+            stats_df = pd.DataFrame(stats_data[0])
+        else:
+            stats_df = pd.DataFrame(stats_data)
+    except Exception as e:
+        print(f"Error creating DataFrame: {e}")
+        return None
         
     # Convert dates and sort chronologically
     stats_df['Date'] = pd.to_datetime(stats_df['Date'])
