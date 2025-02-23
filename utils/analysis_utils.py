@@ -133,6 +133,9 @@ def player_historic_linechart(df, player_name):
     
     return fig
 
+import ast
+import re
+
 def player_scoring_linechart(df, player_name, points_map_file='data/points_map_2025.json'):
     """
     Create an interactive line chart showing a player's fantasy points per tournament.
