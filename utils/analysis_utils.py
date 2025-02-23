@@ -23,23 +23,27 @@ def player_historic_linechart(df, player_name):
         try:
             # Clean and normalize JSON string
             import re
+            import ast
             
-            # First standardize all quotes to single quotes
-            stats_data = stats_data.replace('"', "'")
-            
-            # Fix tournament names with apostrophes
-            stats_data = re.sub(r"'([^']*)'s([^']*)'", r"'\1's\2'", stats_data)
-            
-            # Now convert everything back to double quotes except apostrophes
-            stats_data = re.sub(r"'([^']*)'", r'"\1"', stats_data)
-            
-            # Fix standard JSON values
-            stats_data = (stats_data.replace('True', 'true')
-                         .replace('False', 'false')
-                         .replace('None', 'null')
-                         .replace('},]', '}]')
-                         .replace(',}', '}')
-                         .strip())
+            # First try to safely evaluate as a Python literal
+            try:
+                # Convert string to Python object
+                python_obj = ast.literal_eval(stats_data)
+                # Convert Python object to proper JSON
+                stats_data = json.dumps(python_obj)
+            except:
+                # If literal_eval fails, fall back to manual cleaning
+                stats_data = stats_data.replace('\\"', '"').replace("\\'", "'")
+                stats_data = stats_data.replace("'", '"')
+                stats_data = re.sub(r'"([^"]+)"s\s', r'"\1\'s ', stats_data)
+                
+                # Fix standard JSON values
+                stats_data = (stats_data.replace('True', 'true')
+                             .replace('False', 'false')
+                             .replace('None', 'null')
+                             .replace('},]', '}]')
+                             .replace(',}', '}')
+                             .strip())
             
             try:
                 stats_data = json.loads(stats_data)
