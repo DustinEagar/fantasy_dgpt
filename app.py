@@ -96,7 +96,7 @@ def update_player_analysis(selected_player):
     # Generate visualizations
     historic_fig = player_historic_linechart(df, selected_player)
     scoring_fig = player_scoring_linechart(df, selected_player)
-    rating_fig = plot_player_histogram(df, 'composite_rating', selected_player)
+    rating_fig = plot_player_histogram(df, 'composite_rating', selected_player, nbins=45)
     
     # Generate scoring summary
     scoring_summary = player_summary(df, 'fantasy_points_24', selected_player)
@@ -118,7 +118,8 @@ def update_player_analysis(selected_player):
         df, 
         col_x='fantasy_points_24', 
         col_y='composite_rating',
-        player_name=selected_player
+        player_name=selected_player,
+        x_reference=50
     )
     
     return summary_div, historic_fig, scoring_fig, rating_fig, scoring_div, scatter_fig
