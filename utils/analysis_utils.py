@@ -366,7 +366,7 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
     # Add player annotation
     fig.add_annotation(
         x=player_value,
-        y=max_y * 1.5,
+        y=max_y * 2.2,  # Move annotation much higher
         text=(f"{player_name}<br>" +
               f"Value: {summary['value']:.1f}<br>" +
               f"Rank: {summary['rank']}<br>" +
@@ -375,7 +375,8 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
         showarrow=True,
         arrowhead=2,
         ax=0,
-        ay=-40
+        ay=-120,  # Longer downward-pointing arrow
+        ayref='y'
     )
     
     return fig
