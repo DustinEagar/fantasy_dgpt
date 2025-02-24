@@ -469,7 +469,7 @@ def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = 
         fig.add_annotation(
             x=x_value,
             y=df[col_y].max(),  # Position at top of y-axis
-            text=f"{x_reference}th percentile",
+            text=f"P-{x_reference} - {x_value}",
             showarrow=False,
             yshift=10,
             xshift=10,

@@ -94,6 +94,6 @@ def calculate_composite_scores(df, year1_weight=0.65, year2_weight=0.35):
         lambda x: np.round(stats.percentileofscore(df['composite_fp'], x), 1)
     )
     
-    df['frac_calvin'] = df['composite_fp'] / 3464
+    df['frac_calvin'] = df['composite_fp'] / 3464 
     
     return df

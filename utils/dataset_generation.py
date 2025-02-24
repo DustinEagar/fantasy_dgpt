@@ -83,7 +83,6 @@ def calculate_features(df, points_map, stats_years):
     # Convert rating to float
     df['rating_current'] = df['rating_current'].astype(float)
     
-    
     return df.sort_values('composite_fp', ascending=False)
 
 def generate_player_dataset(input_csv, stats_years, points_map):

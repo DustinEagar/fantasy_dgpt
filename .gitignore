@@ -178,3 +178,8 @@ cython_debug/
 .aider*
 players_basic_stats.csv
 players_basic_stats_processed.csv
+
+players_crawled_25_updated.csv
+players_crawled_25.csv
+points_map_2025.csv
+scraped_temp.csv
