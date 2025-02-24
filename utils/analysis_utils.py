@@ -375,7 +375,7 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
         showarrow=True,
         arrowhead=2,
         ax=0,
-        ay=-120,  # Longer downward-pointing arrow
+        ay=20,  # Longer downward-pointing arrow
         ayref='y'
     )
     
