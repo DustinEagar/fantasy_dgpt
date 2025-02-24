@@ -83,37 +83,31 @@ app.layout = html.Div([
             html.H3("Player Performance Visualizations", 
                    style={'marginBottom': '20px', 'color': COLORS['text']}),
             
-            # Graphs grid
+            # Graphs stack
             html.Div([
-                # Row 1
+                # Historic tournament performance
                 html.Div([
-                    # Historic tournament performance
-                    html.Div([
-                        html.H4("Tournament History", style={'marginTop': '0'}),
-                        dcc.Graph(id='historic-performance')
-                    ], style={**CARD_STYLE, 'flex': '1', 'marginRight': '20px'}),
-                    
-                    # Fantasy scoring history
-                    html.Div([
-                        html.H4("Fantasy Scoring History", style={'marginTop': '0'}),
-                        dcc.Graph(id='fantasy-scoring')
-                    ], style={**CARD_STYLE, 'flex': '1'})
-                ], style={'display': 'flex', 'marginBottom': '20px'}),
+                    html.H4("Tournament History", style={'marginTop': '0'}),
+                    dcc.Graph(id='historic-performance')
+                ], style=CARD_STYLE),
                 
-                # Row 2
+                # Fantasy scoring history
                 html.Div([
-                    # Rating distribution
-                    html.Div([
-                        html.H4("Rating Distribution", style={'marginTop': '0'}),
-                        dcc.Graph(id='rating-distribution')
-                    ], style={**CARD_STYLE, 'flex': '1', 'marginRight': '20px'}),
-                    
-                    # Points vs Rating scatter plot
-                    html.Div([
-                        html.H4("Fantasy Points vs Rating", style={'marginTop': '0'}),
-                        dcc.Graph(id='points-rating-scatter')
-                    ], style={**CARD_STYLE, 'flex': '1'})
-                ], style={'display': 'flex'})
+                    html.H4("Fantasy Scoring History", style={'marginTop': '0'}),
+                    dcc.Graph(id='fantasy-scoring')
+                ], style=CARD_STYLE),
+                
+                # Rating distribution
+                html.Div([
+                    html.H4("Rating Distribution", style={'marginTop': '0'}),
+                    dcc.Graph(id='rating-distribution')
+                ], style=CARD_STYLE),
+                
+                # Points vs Rating scatter plot
+                html.Div([
+                    html.H4("Fantasy Points vs Rating", style={'marginTop': '0'}),
+                    dcc.Graph(id='points-rating-scatter')
+                ], style=CARD_STYLE)
             ])
         ])
     ], style=CONTAINER_STYLE)
