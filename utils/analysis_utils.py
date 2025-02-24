@@ -287,43 +287,6 @@ def player_historic_linechart(df, player_name):
         secondary_y=False
     )
     
-    # Add reference lines if specified
-    if x_reference is not None:
-        x_value = np.percentile(df[col_x], x_reference)
-        fig.add_hline(
-            y=x_value,
-            line_dash="dash",
-            line_color="gray",
-            opacity=0.7
-        )
-        fig.add_annotation(
-            x=df[col_x].max(),
-            y=x_value,
-            text=f"{x_reference}th percentile",
-            showarrow=False,
-            yshift=10,
-            xshift=-10,
-            align="right"
-        )
-        
-    if y_reference is not None:
-        y_value = np.percentile(df[col_y], y_reference)
-        fig.add_hline(
-            y=y_value,
-            line_dash="dash",
-            line_color="gray",
-            opacity=0.7
-        )
-        fig.add_annotation(
-            x=df[col_x].max(),
-            y=y_value,
-            text=f"{y_reference}th percentile",
-            showarrow=False,
-            yshift=10,
-            xshift=-10,
-            align="right"
-        )
-    
     return fig
 
 def player_summary(df: pd.DataFrame, column: str, player_name: str):
@@ -493,6 +456,43 @@ def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = 
                     )
                 )
             )
+    
+    # Add reference lines if specified
+    if x_reference is not None:
+        x_value = np.percentile(df[col_x], x_reference)
+        fig.add_vline(  # Changed from hline to vline for x-axis reference
+            x=x_value,
+            line_dash="dash",
+            line_color="gray",
+            opacity=0.7
+        )
+        fig.add_annotation(
+            x=x_value,
+            y=df[col_y].max(),  # Position at top of y-axis
+            text=f"{x_reference}th percentile",
+            showarrow=False,
+            yshift=10,
+            xshift=10,
+            align="left"
+        )
+        
+    if y_reference is not None:
+        y_value = np.percentile(df[col_y], y_reference)
+        fig.add_hline(
+            y=y_value,
+            line_dash="dash",
+            line_color="gray",
+            opacity=0.7
+        )
+        fig.add_annotation(
+            x=df[col_x].max(),  # Position at right of x-axis
+            y=y_value,
+            text=f"{y_reference}th percentile",
+            showarrow=False,
+            yshift=10,
+            xshift=-10,
+            align="right"
+        )
     
     return fig
 
