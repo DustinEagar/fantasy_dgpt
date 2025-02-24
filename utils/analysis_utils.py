@@ -287,6 +287,43 @@ def player_historic_linechart(df, player_name):
         secondary_y=False
     )
     
+    # Add reference lines if specified
+    if x_reference is not None:
+        x_value = np.percentile(df[col_x], x_reference)
+        fig.add_hline(
+            y=x_value,
+            line_dash="dash",
+            line_color="gray",
+            opacity=0.7
+        )
+        fig.add_annotation(
+            x=df[col_x].max(),
+            y=x_value,
+            text=f"{x_reference}th percentile",
+            showarrow=False,
+            yshift=10,
+            xshift=-10,
+            align="right"
+        )
+        
+    if y_reference is not None:
+        y_value = np.percentile(df[col_y], y_reference)
+        fig.add_hline(
+            y=y_value,
+            line_dash="dash",
+            line_color="gray",
+            opacity=0.7
+        )
+        fig.add_annotation(
+            x=df[col_x].max(),
+            y=y_value,
+            text=f"{y_reference}th percentile",
+            showarrow=False,
+            yshift=10,
+            xshift=-10,
+            align="right"
+        )
+    
     return fig
 
 def player_summary(df: pd.DataFrame, column: str, player_name: str):
@@ -384,9 +421,10 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
 import ast
 import re
 
-def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = None, player_name: str = None):
+def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = None, 
+                    player_name: str = None, x_reference: float = None, y_reference: float = None):
     """
-    Create an interactive scatter plot comparing two columns, with optional coloring.
+    Create an interactive scatter plot comparing two columns, with optional coloring and reference lines.
     
     Args:
         df: DataFrame containing player data
@@ -394,6 +432,8 @@ def plot_scatterplot(df: pd.DataFrame, col_x: str, col_y: str, color_col: str = 
         col_y: Column name for y-axis
         color_col: Optional column name for point colors
         player_name: Optional player name to highlight
+        x_reference: Optional percentile (0-100) to draw reference line on x-axis
+        y_reference: Optional percentile (0-100) to draw reference line on y-axis
         
     Returns:
         Plotly Figure object with the scatter plot
