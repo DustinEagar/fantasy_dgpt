@@ -378,7 +378,6 @@ def plot_player_histogram(df: pd.DataFrame, column: str, player_name: str, nbins
         ay=-40
     )
     
-    fig.show()
     return fig
 
 import ast
