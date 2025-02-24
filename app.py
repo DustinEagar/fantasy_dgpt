@@ -58,6 +58,12 @@ app.layout = html.Div([
         html.Div([
             html.H4("Rating Distribution"),
             dcc.Graph(id='rating-distribution')
+        ]),
+        
+        # Points vs Rating scatter plot
+        html.Div([
+            html.H4("Fantasy Points vs Rating"),
+            dcc.Graph(id='points-rating-scatter')
         ])
     ])
 ])
@@ -68,6 +74,7 @@ app.layout = html.Div([
     Output('fantasy-scoring', 'figure'),
     Output('rating-distribution', 'figure'),
     Output('scoring-summary-stats', 'children'),
+    Output('points-rating-scatter', 'figure'),
     Input('player-dropdown', 'value')
 )
 def update_player_analysis(selected_player):
@@ -106,7 +113,15 @@ def update_player_analysis(selected_player):
         ])
     ])
     
-    return summary_div, historic_fig, scoring_fig, rating_fig, scoring_div
+    # Generate scatter plot
+    scatter_fig = plot_scatterplot(
+        df, 
+        col_x='fantasy_points_24', 
+        col_y='composite_rating',
+        player_name=selected_player
+    )
+    
+    return summary_div, historic_fig, scoring_fig, rating_fig, scoring_div, scatter_fig
 
 if __name__ == '__main__':
     app.run(debug=True)
