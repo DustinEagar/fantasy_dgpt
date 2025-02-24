@@ -11,62 +11,113 @@ from utils.analysis_utils import (
 # Initialize the Dash app
 app = Dash(__name__)
 
+# Define styles
+COLORS = {
+    'background': '#f8f9fa',
+    'text': '#212529',
+    'primary': '#0d6efd',
+    'secondary': '#6c757d',
+    'border': '#dee2e6'
+}
+
+CARD_STYLE = {
+    'backgroundColor': 'white',
+    'borderRadius': '8px',
+    'boxShadow': '0 2px 4px rgba(0,0,0,0.1)',
+    'padding': '20px',
+    'marginBottom': '20px'
+}
+
+HEADER_STYLE = {
+    'color': COLORS['text'],
+    'padding': '20px 0',
+    'marginBottom': '20px',
+    'borderBottom': f'1px solid {COLORS["border"]}'
+}
+
+CONTAINER_STYLE = {
+    'maxWidth': '1200px',
+    'margin': '0 auto',
+    'padding': '20px'
+}
+
 # Load the data
 df = pd.read_csv('data/players_crawled_25_updated2.csv')
 player_list = sorted(df['Player'].unique())
 
 # Define the app layout
 app.layout = html.Div([
-    html.H1("Disc Golf Player Analysis Dashboard"),
-    
-    # Player selection dropdown
+    # Main container
     html.Div([
-        html.Label("Select Player:"),
-        dcc.Dropdown(
-            id='player-dropdown',
-            options=[{'label': player, 'value': player} for player in player_list],
-            value=player_list[0]
-        )
-    ], style={'width': '50%', 'margin': '20px'}),
-    
-    # Player summary sections
-    html.Div([
-        html.H3("Player Summary"),
-        html.Div(id='player-summary-stats'),
+        # Header
+        html.H1("Disc Golf Player Analysis Dashboard", style=HEADER_STYLE),
         
-        html.H3("Scoring Summary"),
-        html.Div(id='scoring-summary-stats')
-    ]),
-    
-    # Graphs section
-    html.Div([
-        html.H3("Player Performance Visualizations"),
-        
-        # Historic tournament performance
+        # Player selection dropdown
         html.Div([
-            html.H4("Tournament History"),
-            dcc.Graph(id='historic-performance')
-        ]),
+            html.Label("Select Player:", style={'marginBottom': '8px', 'display': 'block'}),
+            dcc.Dropdown(
+                id='player-dropdown',
+                options=[{'label': player, 'value': player} for player in player_list],
+                value=player_list[0],
+                style={'borderRadius': '4px'}
+            )
+        ], style={'width': '50%', 'marginBottom': '30px'}),
         
-        # Fantasy scoring history
+        # Summary cards row
         html.Div([
-            html.H4("Fantasy Scoring History"),
-            dcc.Graph(id='fantasy-scoring')
-        ]),
+            # Player Summary Card
+            html.Div([
+                html.H3("Player Summary", style={'marginTop': '0'}),
+                html.Div(id='player-summary-stats')
+            ], style={**CARD_STYLE, 'flex': '1', 'marginRight': '20px'}),
+            
+            # Scoring Summary Card
+            html.Div([
+                html.H3("Scoring Summary", style={'marginTop': '0'}),
+                html.Div(id='scoring-summary-stats')
+            ], style={**CARD_STYLE, 'flex': '1'})
+        ], style={'display': 'flex', 'marginBottom': '30px'}),
         
-        # Rating distribution
+        # Graphs section
         html.Div([
-            html.H4("Rating Distribution"),
-            dcc.Graph(id='rating-distribution')
-        ]),
-        
-        # Points vs Rating scatter plot
-        html.Div([
-            html.H4("Fantasy Points vs Rating"),
-            dcc.Graph(id='points-rating-scatter')
+            html.H3("Player Performance Visualizations", 
+                   style={'marginBottom': '20px', 'color': COLORS['text']}),
+            
+            # Graphs grid
+            html.Div([
+                # Row 1
+                html.Div([
+                    # Historic tournament performance
+                    html.Div([
+                        html.H4("Tournament History", style={'marginTop': '0'}),
+                        dcc.Graph(id='historic-performance')
+                    ], style={**CARD_STYLE, 'flex': '1', 'marginRight': '20px'}),
+                    
+                    # Fantasy scoring history
+                    html.Div([
+                        html.H4("Fantasy Scoring History", style={'marginTop': '0'}),
+                        dcc.Graph(id='fantasy-scoring')
+                    ], style={**CARD_STYLE, 'flex': '1'})
+                ], style={'display': 'flex', 'marginBottom': '20px'}),
+                
+                # Row 2
+                html.Div([
+                    # Rating distribution
+                    html.Div([
+                        html.H4("Rating Distribution", style={'marginTop': '0'}),
+                        dcc.Graph(id='rating-distribution')
+                    ], style={**CARD_STYLE, 'flex': '1', 'marginRight': '20px'}),
+                    
+                    # Points vs Rating scatter plot
+                    html.Div([
+                        html.H4("Fantasy Points vs Rating", style={'marginTop': '0'}),
+                        dcc.Graph(id='points-rating-scatter')
+                    ], style={**CARD_STYLE, 'flex': '1'})
+                ], style={'display': 'flex'})
+            ])
         ])
-    ])
-])
+    ], style=CONTAINER_STYLE)
+], style={'backgroundColor': COLORS['background'], 'minHeight': '100vh'})
 
 @callback(
     Output('player-summary-stats', 'children'),
